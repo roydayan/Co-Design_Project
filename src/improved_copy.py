@@ -187,9 +187,11 @@ def _deepcopy_dataclass(x, memo):
     """Deep copy operation for dataclasses.
     """
     cls = type(x)
-    new_args = [deepcopy(getattr(x, f.name), memo) for f in dataclasses.fields(x)]
-    y = cls(*new_args)
+    y = cls.__new__(cls)
     memo[id(x)] = y
+    for f in dataclasses.fields(x):
+        value = deepcopy(getattr(x, f.name), memo)
+        setattr(y, f.name, value)
     return y
 
 def _keep_alive(x, memo):
